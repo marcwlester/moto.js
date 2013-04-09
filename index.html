@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/. -->
+		<title>moto.js!</title>
+
+		<link href='assets/css/default.css' rel='stylesheet' />
+		<link href='vendor/bootstrap/css/bootstrap.min.css' rel='stylesheet' />
+
+	</head>
+	<body>
+
+		<div class='container'>
+			<div id='screen-load' class='screen'>
+				<div class='container-narrow'>
+					<div class='title'>
+						<h1>moto.js</h1>
+						<p><img src='assets/img/title.png' /></p>
+						<p class='lead'>Fast-paced dirt bike action</p>
+						<p>For the <a href='www.google.com/chrome/' target='_blank'>Chrome browser</a></p>
+					</div>
+					<div class="progress progress-striped active">
+						<div class="bar" id='asset-bar' style="width: 0%;"></div>
+					</div>
+					<p align='center'>Loading asset <span id='assets-loaded'></span> of <span id='assets-total'></span></p>
+				</div>
+			</div>
+
+			<div id='screen-intro' class='screen'>
+				<div class='container-narrow'>
+					<div class='title'>
+						<h1>moto.js</h1>
+						<p class='lead'>Fast-paced dirt bike action</p>
+					</div>
+					<div class='main-menu'>
+						<button class="btn btn-large btn-block btn-primary" type="button" onclick="jQuery('#screen-intro').hide();jQuery('#screen-help').show();">Help</button>
+						<button class="btn btn-large btn-block btn-primary" type="button" onclick="gBikeGame.startTrack1()">Track 1</button>
+						<button class="btn btn-large btn-block btn-primary" type="button" onclick="gBikeGame.startTrack2()">Track 2</button>
+						<button class="btn btn-large btn-block btn-primary" type="button" onclick="gBikeGame.startTrack3()">Track 3</button>
+						<button class="btn btn-large btn-block btn-primary" type="button" onclick="jQuery('#screen-intro').hide();jQuery('#screen-about').show();">About</button>
+					</div>
+				</div>
+			</div>
+
+			
+
+			<div id='screen-help' class='screen'>
+				<div class='container-narrow'>
+					<div class='title'>
+						<h1>moto.js</h1>
+						<p class='lead'>Fast-paced dirt bike action</p>
+					</div>
+					<div>
+						<p><b>A</b>: lean back</p>
+						<p><b>D</b>: lean forward</p>
+						<p><b>K</b>: accelerate</p>
+						<p><b>L</b>: turbo</p>
+						<p><b>Q</b>: pause/un-pause the game</p>
+						<p>Doing flips in the air and landing them will give you extra <b>NOS</b> power.  Press the <b>K</b> key to use for extra speed.</p>
+					</div>
+					<div class='main-menu'>
+						<button class="btn btn-large btn-block btn-primary" type="button" onclick="jQuery('#screen-help').hide();jQuery('#screen-intro').show();">Back</button>
+						
+					</div>
+				</div>
+			</div>
+
+			<div id='screen-about' class='screen'>
+				<div class='container-narrow'>
+					<div class='title'>
+						<h1>moto.js</h1>
+						<p><img src='assets/img/title.png' /></p>
+						<p class='lead'>Fast-paced dirt bike action</p>
+					</div>
+					<div>
+						<p>This HTML5 game code and graphics were created by <a href='mailto:marc.w.lester@gmail.com'>Marc Lester</a> with some help from...</p>
+						<h3>Scripts</h3>
+						<p>
+
+							<a target='_blank' href='http://www.udacity.com'><img src='assets/img/udacity-full-130x140.png' /></a>
+							<a target='_blank' href='http://box2d.org'><img src='assets/img/box2d_logo.gif' /></a>
+							<a target='_blank' href='http://jetienne.com/' class="label label-info">Jerome Etienne and his THREE.js contributions</a>
+							<a target='_blank' href='http://threejs.org/' class="label label-info">THREE.js</a>
+							<a target='_blank' href='http://www.jquery.com'><img src='assets/img/jquery_logo.png' width='200' /></a>
+							<a href="assets/bootstrap.zip" class="btn btn-primary btn-large">Bootstrap</a>
+							<a target='_blank' href='http://code.google.com/p/jsgauge/'><img src='assets/img/jsgauge_logo.png' /> jsgauge</a>
+						</p>
+						<h3>Music</h3>
+						<p>
+							<a target='_blank' href='http://ozzed.net/music/'><img src='assets/img/ozzed.png' /></a>
+						</p>
+						<h3>Art</h3>
+						<p>Yours truly :)</p>
+						<p><small>Please enjoy responsibly</small></p>
+						<p><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Moto.js</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://marcwlester.github.com/moto.js" property="cc:attributionName" rel="cc:attributionURL">Marc Lester</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.</p>
+					</div>
+					<div class='main-menu'>
+						<button class="btn btn-large btn-block btn-primary" type="button" onclick="jQuery('#screen-about').hide();jQuery('#screen-intro').show();">Back</button>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class=''>
+			<div id='screen-race' class='screen' tabindex='1'>
+				<canvas id='game_canvas'></canvas>
+				<div id='starter'>3</div>
+				<div id='finish'>
+					<h1>Finish!<h1>
+					<h2><span id='finish-time'></span></h2>
+					<button class="btn btn-large btn-block btn-primary" type="button" onclick="gBikeGame.backToMenu()">Back to Menu</button>
+				</div>
+				<div id='race-menu'>
+					<button class="btn btn-large btn-block btn-primary" type="button" onclick="gBikeGame.toggleSound()">Toggle Sound</button>
+					<button class="btn btn-large btn-block btn-primary" type="button" onclick="gBikeGame.backToMenu()">Back to Menu</button>
+				</div>
+				<div id='dashboard'>
+					<canvas id='rpm-gauge' width="200" height="200"></canvas>
+					<canvas id='speed-gauge' width="200" height="200"></canvas>
+					<canvas id='boost-gauge' width="200" height="200"></canvas>
+				</div>
+			</div>
+		</div>
+
+		<!-- 3rd party sources -->
+		<script type='text/javascript' src='vendor/cs255/core.js'></script>
+		<script type='text/javascript' src='vendor/cs255/xhr.js'></script>
+		<script type='text/javascript' src='vendor/cs255/InputEngine.js'></script>
+		<script type='text/javascript' src='vendor/box2dweb/box2d.js'></script>
+		<script type='text/javascript' src='vendor/threex.js/requestanimationframe.js'></script>
+		<script type='text/javascript' src='vendor/threex.js/keyboardstate.js'></script>
+		<script type='text/javascript' src='vendor/jquery/jquery.min.js'></script>
+		<script type='text/javascript' src='vendor/jsgauge-0.4.6/build/gauge.min.js'></script>
+		<script type='text/javascript' src='vendor/jsgauge-0.4.6/build/jquery.gauge.min.js'></script>
+		<script type='text/javascript' src='vendor/bootstrap/js/bootstrap.min.js'></script>
+
+		<!-- source files -->
+		<script type='text/javascript' src='src/AssetLoader.js'></script>
+		<script type='text/javascript' src='src/Screen.js'></script>
+		<script type='text/javascript' src='src/PhysicsEngine.js'></script>
+		<script type='text/javascript' src='src/RenderEngine.js'></script>
+		<script type='text/javascript' src='src/SoundManager.js'></script>
+		<script type='text/javascript' src='src/BikeGame.js'></script>
+		<script type='text/javascript' src='src/Screens/IntroScreen.js'></script>
+		<script type='text/javascript' src='src/Screens/RaceScreen.js'></script>
+
+		<!-- main -->
+		<!-- <script type='text/javascript' src='scratch/1.js'></script> -->
+		<!-- <script type='text/javascript' src='scratch/screen2.js'></script> -->
+		<script type='text/javascript' src='src/main.js'></script>
+	</body>
+</html>
