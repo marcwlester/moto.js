@@ -22,17 +22,8 @@ var b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef;
 var PhysicsEngine = Class.extend({
 	world: null,
 	scale: 4,
-	bodies: {
-		track: null,
-		bike: {
-			base: null,
-			fwheel: null,
-			rwheel: null,
-			rjoint: null,
-			fjoint: null
-		},
-		ramps: []
-	},
+	
+	bodies: [],
 	bodyCache: [],
 	jointCache: [],
 	clearBodies: function() {
@@ -48,18 +39,20 @@ var PhysicsEngine = Class.extend({
 		}
 		gPhysicsEngine.bodyCache = [];
 		gPhysicsEngine.jointCache = [];
+		for (var i = 1; i <= 4; i++) {
+			gPhysicsEngine.bodies[i] = {
+				track: null,
+				bike: {
+					base: null,
+					fwheel: null,
+					rwheel: null,
+					rjoint: null,
+					fjoint: null
+				},
+				ramps: []
+			};
+		}
 
-		gPhysicsEngine.bodies = {
-			track: null,
-			bike: {
-				base: null,
-				fwheel: null,
-				rwheel: null,
-				rjoint: null,
-				fjoint: null
-			},
-			ramps: []
-		};
 	},
 
 	init: function() {
@@ -147,28 +140,28 @@ var PhysicsEngine = Class.extend({
 	},
 
 	makeBike: function(pos, tracknum) {
-		gPhysicsEngine.bodies.bike.base = gPhysicsEngine.makeBikeBody(pos, tracknum);
-		gPhysicsEngine.bodies.bike.fwheel = gPhysicsEngine.makeWheel(pos, tracknum, 'front', 0.5, 8, 8, 1.5);
-		gPhysicsEngine.bodies.bike.rwheel = gPhysicsEngine.makeWheel(pos, tracknum, 'back', 0.5, 7, 7, -1.5);
+		gPhysicsEngine.bodies[tracknum].bike.base = gPhysicsEngine.makeBikeBody(pos, tracknum);
+		gPhysicsEngine.bodies[tracknum].bike.fwheel = gPhysicsEngine.makeWheel(pos, tracknum, 'front', 0.5, 8, 8, 1.5);
+		gPhysicsEngine.bodies[tracknum].bike.rwheel = gPhysicsEngine.makeWheel(pos, tracknum, 'back', 0.5, 7, 7, -1.5);
 
 		var fwheelJointDef = new b2RevoluteJointDef();
-		fwheelJointDef.bodyA = gPhysicsEngine.bodies.bike.fwheel;
-		fwheelJointDef.bodyB = gPhysicsEngine.bodies.bike.base;
+		fwheelJointDef.bodyA = gPhysicsEngine.bodies[tracknum].bike.fwheel;
+		fwheelJointDef.bodyB = gPhysicsEngine.bodies[tracknum].bike.base;
 		fwheelJointDef.collideConnected = false;
 		fwheelJointDef.localAnchorA.Set(0,0);
 		fwheelJointDef.localAnchorB.Set(1.5,0);
 		fwheelJointDef.enableMotor = true;
-		gPhysicsEngine.bodies.bike.fjoint = gPhysicsEngine.world.CreateJoint(fwheelJointDef);
+		gPhysicsEngine.bodies[tracknum].bike.fjoint = gPhysicsEngine.world.CreateJoint(fwheelJointDef);
 
 
 		var rwheelJointDef = new b2RevoluteJointDef();
-		rwheelJointDef.bodyA = gPhysicsEngine.bodies.bike.rwheel;
-		rwheelJointDef.bodyB = gPhysicsEngine.bodies.bike.base;
+		rwheelJointDef.bodyA = gPhysicsEngine.bodies[tracknum].bike.rwheel;
+		rwheelJointDef.bodyB = gPhysicsEngine.bodies[tracknum].bike.base;
 		rwheelJointDef.collideConnected = false;
 		fwheelJointDef.localAnchorA.Set(0,0);
 		rwheelJointDef.localAnchorB.Set(-1.5,0);
 		rwheelJointDef.enableMotor = true;
-		gPhysicsEngine.bodies.bike.rjoint = gPhysicsEngine.world.CreateJoint(rwheelJointDef);
+		gPhysicsEngine.bodies[tracknum].bike.rjoint = gPhysicsEngine.world.CreateJoint(rwheelJointDef);
 	},
 	makeWheel: function(pos, tracknum, name, rest, id, index, offsetx) {
 		yoffset = gPhysicsEngine.getTrackYOffset(tracknum) - 2;
@@ -238,10 +231,13 @@ var PhysicsEngine = Class.extend({
 				}
 			}]
 		});
-		gPhysicsEngine.bodies.starter = body;
+		gPhysicsEngine.bodies[tracknum].starter = body;
 	},
-	destroyStarter: function() {
-		gPhysicsEngine.world.DestroyBody(gPhysicsEngine.bodies.starter);
+	destroyStarters: function() {
+		for (var i = 1; i < gPhysicsEngine.bodies.length; i++) {
+			gPhysicsEngine.world.DestroyBody(gPhysicsEngine.bodies[i].starter);	
+		}
+		
 	},
 	makeRamp1: function(pos, tracknum) {
 		yoffset = gPhysicsEngine.getTrackYOffset(tracknum);
@@ -265,7 +261,7 @@ var PhysicsEngine = Class.extend({
 				name: 'ramp1'
 			}
 		});
-		gPhysicsEngine.bodies['ramps'].push(ramp1);
+		gPhysicsEngine.bodies[tracknum].ramps.push(ramp1);
 	},
 	makeRamp2: function(pos, tracknum) {
 		yoffset = gPhysicsEngine.getTrackYOffset(tracknum);
@@ -300,7 +296,7 @@ var PhysicsEngine = Class.extend({
 				name: 'ramp2'
 			}
 		});
-		gPhysicsEngine.bodies['ramps'].push(ramp2);
+		gPhysicsEngine.bodies[tracknum].ramps.push(ramp2);
 	},
 	makeRamp3: function(pos, tracknum) {
 		yoffset = gPhysicsEngine.getTrackYOffset(tracknum);
@@ -359,7 +355,7 @@ var PhysicsEngine = Class.extend({
 				name: 'ramp3'
 			}
 		});
-		gPhysicsEngine.bodies['ramps'].push(ramp3);
+		gPhysicsEngine.bodies[tracknum].ramps.push(ramp3);
 	},
 	makeRamp4: function(pos, tracknum) {
 		yoffset = gPhysicsEngine.getTrackYOffset(tracknum);
@@ -395,7 +391,7 @@ var PhysicsEngine = Class.extend({
 				name: 'ramp4'
 			}
 		});
-		gPhysicsEngine.bodies['ramps'].push(ramp4);
+		gPhysicsEngine.bodies[tracknum].ramps.push(ramp4);
 	},
 	makeRamp5: function(pos, tracknum) {
 		yoffset = gPhysicsEngine.getTrackYOffset(tracknum);
@@ -431,7 +427,7 @@ var PhysicsEngine = Class.extend({
 				name: 'ramp5'
 			}
 		});
-		gPhysicsEngine.bodies['ramps'].push(ramp5);
+		gPhysicsEngine.bodies[tracknum].ramps.push(ramp5);
 	},
 	makeRamp6: function(pos, tracknum) {
 		yoffset = gPhysicsEngine.getTrackYOffset(tracknum);
@@ -467,7 +463,7 @@ var PhysicsEngine = Class.extend({
 				name: 'ramp6'
 			}
 		});
-		gPhysicsEngine.bodies['ramps'].push(ramp5);
+		gPhysicsEngine.bodies[tracknum].ramps.push(ramp5);
 	},
 	makeTrack: function(size, tracknum) {
 		yoffset = gPhysicsEngine.getTrackYOffset(tracknum);
@@ -487,10 +483,10 @@ var PhysicsEngine = Class.extend({
 				}
 			}]
 		});
-		gPhysicsEngine.bodies['track'] = track;
+		gPhysicsEngine.bodies[tracknum].track = track;
 	},
 	getTrackYOffset: function(tracknum) {
-		return 20 + ((tracknum - 1) * 10);
+		return 20 + ((tracknum - 1) * 200);
 	}
 });
 

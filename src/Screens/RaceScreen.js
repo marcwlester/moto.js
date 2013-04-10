@@ -78,9 +78,9 @@ var RaceScreen = Screen.extend({
 		this.menuCooldown = Math.max(this.menuCooldown - 1, 0);
 		if (this.menuOpen) return;
 
-		var inAir = gPhysicsEngine.bodies.bike.rwheel.GetFixtureList().GetUserData().inAir;
+		var inAir = gPhysicsEngine.bodies[1].bike.rwheel.GetFixtureList().GetUserData().inAir;
 		var moving = false;
-		gPhysicsEngine.bodies.bike.rjoint.SetMotorSpeed(0);
+		gPhysicsEngine.bodies[1].bike.rjoint.SetMotorSpeed(0);
 		if (gInputEngine.action('drive')) {
 			// if (!this.motorSoundOn) {
 			// 	gSM.playPlayerSound('assets/audio/motor2.wav', {looping: true, volumn: 0.5});
@@ -88,7 +88,7 @@ var RaceScreen = Screen.extend({
 			// }
 			moving = true;
 			this.torqueValue = Math.min(this.torqueValue + this.torqueStep, this.minTorque);
-			gPhysicsEngine.bodies.bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
+			gPhysicsEngine.bodies[1].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
 
 		} else if (gInputEngine.action('over-drive')) {
 			if (this.boostCount > 0) {
@@ -97,7 +97,7 @@ var RaceScreen = Screen.extend({
 				// 	this.motorSoundOn = true;
 				// }
 				this.torqueValue = Math.min(this.torqueValue + this.torqueStep, this.maxTorque);
-				gPhysicsEngine.bodies.bike.rjoint.SetMotorSpeed(-this.MAX_OVERDRIVE);
+				gPhysicsEngine.bodies[1].bike.rjoint.SetMotorSpeed(-this.MAX_OVERDRIVE);
 				this.boostCount -= 1;
 				moving = true;
 			}
@@ -112,15 +112,15 @@ var RaceScreen = Screen.extend({
 		if (gInputEngine.action('lean-back')) {
 			
 			var angle_speed = 1;
-			gPhysicsEngine.bodies.bike.base.ApplyImpulse(new b2Vec2(0,-10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies.bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies.bike.base.GetWorldCenter().y));
-			gPhysicsEngine.bodies.bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies.bike.base.GetWorldCenter().x - 1.5, gPhysicsEngine.bodies.bike.base.GetWorldCenter().y));
+			gPhysicsEngine.bodies[1].bike.base.ApplyImpulse(new b2Vec2(0,-10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[1].bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies[1].bike.base.GetWorldCenter().y));
+			gPhysicsEngine.bodies[1].bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[1].bike.base.GetWorldCenter().x - 1.5, gPhysicsEngine.bodies[1].bike.base.GetWorldCenter().y));
 		} else if (gInputEngine.action('lean-forward')) {
 			var angle_speed = 0.5;
-			gPhysicsEngine.bodies.bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies.bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies.bike.base.GetWorldCenter().y));
+			gPhysicsEngine.bodies[1].bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[1].bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies[1].bike.base.GetWorldCenter().y));
 		}
 
 		if (inAir) {
-			var thisRotation = gPhysicsEngine.bodies.bike.base.GetAngle();
+			var thisRotation = gPhysicsEngine.bodies[1].bike.base.GetAngle();
 			var thisRotationDirection = this.lastRotation - thisRotation > 0 ? 1 : -1;
 
 			if (this.startRotation == null) {
@@ -136,7 +136,7 @@ var RaceScreen = Screen.extend({
 			//this.lastRotation = thisRotation;
 		} else {
 			if (this.startRotation != null) {
-				var rotations = Math.abs(gPhysicsEngine.bodies.bike.base.GetAngle() - (this.startRotation));
+				var rotations = Math.abs(gPhysicsEngine.bodies[1].bike.base.GetAngle() - (this.startRotation));
 				var flips = Math.round(rotations / (Math.PI * 2));
 
 				this.numFlips += flips
@@ -149,17 +149,24 @@ var RaceScreen = Screen.extend({
 			this.startRotation = null;
 		}
 		
-		gPhysicsEngine.bodies.bike.rjoint.SetMaxMotorTorque(this.torqueValue);
+		gPhysicsEngine.bodies[1].bike.rjoint.SetMaxMotorTorque(this.torqueValue);
+
+		gPhysicsEngine.bodies[2].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
+		gPhysicsEngine.bodies[2].bike.rjoint.SetMaxMotorTorque(this.torqueValue);
+		gPhysicsEngine.bodies[3].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
+		gPhysicsEngine.bodies[3].bike.rjoint.SetMaxMotorTorque(this.torqueValue);
+		gPhysicsEngine.bodies[4].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
+		gPhysicsEngine.bodies[4].bike.rjoint.SetMaxMotorTorque(this.torqueValue);
 
 
 		this.clearScreen();
 
 		jQuery('#torque').html(this.torqueValue);
-		jQuery('#speed').html(gPhysicsEngine.bodies.bike.base.GetLinearVelocity().x);
+		jQuery('#speed').html(gPhysicsEngine.bodies[1].bike.base.GetLinearVelocity().x);
 		jQuery('#rotation').html(this.numFlips);
 		
 		//jQuery('#debug').html(this.endPos + ': ' + gPhysicsEngine.bodies.bike.base.GetPosition().x);
-		if (gPhysicsEngine.bodies.bike.base.GetPosition().x >= this.endPos && this.finishTime == 0) {
+		if (gPhysicsEngine.bodies[1].bike.base.GetPosition().x >= this.endPos && this.finishTime == 0) {
 			this.finishTime = new Date().getTime();
 			var raceTime = this.finishTime - this.startTime;
 			jQuery('#finish-time').html((raceTime / 1000) + "s");
@@ -183,18 +190,18 @@ var RaceScreen = Screen.extend({
 		
 		this.torqueValue = Math.max(this.torqueValue - (this.torqueStep/5), 100);
 
-		var head_injury = gPhysicsEngine.bodies.bike.base.GetFixtureList().GetUserData().headInjury;
+		var head_injury = gPhysicsEngine.bodies[1].bike.base.GetFixtureList().GetUserData().headInjury;
 		if (head_injury) {
-			gPhysicsEngine.bodies.bike.base.SetLinearVelocity(new b2Vec2(0,0));
-			gPhysicsEngine.bodies.bike.base.SetAngularVelocity(0);
-			gPhysicsEngine.bodies.bike.fwheel.SetLinearVelocity(new b2Vec2(0,0));
-			gPhysicsEngine.bodies.bike.rwheel.SetLinearVelocity(new b2Vec2(0,0));
-			gPhysicsEngine.bodies.bike.fwheel.SetAngularVelocity(0);
-			gPhysicsEngine.bodies.bike.rwheel.SetAngularVelocity(0);
-			gPhysicsEngine.bodies.bike.base.SetPositionAndAngle(new b2Vec2(gPhysicsEngine.bodies.bike.base.GetPosition().x,0), 0);
-			gPhysicsEngine.bodies.bike.fwheel.SetPosition(new b2Vec2(gPhysicsEngine.bodies.bike.fwheel.GetPosition().x,0));
-			gPhysicsEngine.bodies.bike.rwheel.SetPosition(new b2Vec2(gPhysicsEngine.bodies.bike.rwheel.GetPosition().x,0));
-			gPhysicsEngine.bodies.bike.base.GetFixtureList().GetUserData().headInjury = false;
+			gPhysicsEngine.bodies[1].bike.base.SetLinearVelocity(new b2Vec2(0,0));
+			gPhysicsEngine.bodies[1].bike.base.SetAngularVelocity(0);
+			gPhysicsEngine.bodies[1].bike.fwheel.SetLinearVelocity(new b2Vec2(0,0));
+			gPhysicsEngine.bodies[1].bike.rwheel.SetLinearVelocity(new b2Vec2(0,0));
+			gPhysicsEngine.bodies[1].bike.fwheel.SetAngularVelocity(0);
+			gPhysicsEngine.bodies[1].bike.rwheel.SetAngularVelocity(0);
+			gPhysicsEngine.bodies[1].bike.base.SetPositionAndAngle(new b2Vec2(gPhysicsEngine.bodies[1].bike.base.GetPosition().x,0), 0);
+			gPhysicsEngine.bodies[1].bike.fwheel.SetPosition(new b2Vec2(gPhysicsEngine.bodies[1].bike.fwheel.GetPosition().x,0));
+			gPhysicsEngine.bodies[1].bike.rwheel.SetPosition(new b2Vec2(gPhysicsEngine.bodies[1].bike.rwheel.GetPosition().x,0));
+			gPhysicsEngine.bodies[1].bike.base.GetFixtureList().GetUserData().headInjury = false;
 			this.startRotation = null;
 		}
 
@@ -230,37 +237,40 @@ var RaceScreen = Screen.extend({
 			gRenderEngine.resetRenderer();
 			gPhysicsEngine.init();
 			gPhysicsEngine.clearBodies();
-			gPhysicsEngine.makeTrack(tdata.end * 2, 1);
-			gPhysicsEngine.makeBike(5, 1);
-			gBikeGame.screens['race'].endPos = tdata.end;
-			for (var i = 0; i < tdata.track.length; i++) {
-				var pos = tdata.track[i].pos;
-				switch(tdata.track[i].type) {
-					case "ramp1":
-					gPhysicsEngine.makeRamp1(pos, 1);
-					break;
-					case "ramp2":
-					gPhysicsEngine.makeRamp2(pos, 1);
-					break;
-					case "ramp3":
-					gPhysicsEngine.makeRamp3(pos, 1);
-					break;
-					case "ramp4":
-					gPhysicsEngine.makeRamp4(pos, 1);
-					break;
-					case "ramp5":
-					gPhysicsEngine.makeRamp5(pos, 1);
-					break;
-					case "ramp6":
-					gPhysicsEngine.makeRamp6(pos, 1);
-					break;
+
+			for (var p = 1; p <= 4; p++) {
+				gPhysicsEngine.makeTrack(tdata.end * 2, p);
+				gPhysicsEngine.makeBike(5, p);
+				gBikeGame.screens['race'].endPos = tdata.end;
+				for (var i = 0; i < tdata.track.length; i++) {
+					var pos = tdata.track[i].pos;
+					switch(tdata.track[i].type) {
+						case "ramp1":
+						gPhysicsEngine.makeRamp1(pos, p);
+						break;
+						case "ramp2":
+						gPhysicsEngine.makeRamp2(pos, p);
+						break;
+						case "ramp3":
+						gPhysicsEngine.makeRamp3(pos, p);
+						break;
+						case "ramp4":
+						gPhysicsEngine.makeRamp4(pos, p);
+						break;
+						case "ramp5":
+						gPhysicsEngine.makeRamp5(pos, p);
+						break;
+						case "ramp6":
+						gPhysicsEngine.makeRamp6(pos, p);
+						break;
+					}
 				}
+				gPhysicsEngine.makeStarter(8, p);
 			}
-			gPhysicsEngine.makeStarter(8, 1);
-			// if (self.debugDraw !== null) {
+			if (self.debugDraw !== null) {
 			// 	//console.log(self.debugDraw);
-			// 	gPhysicsEngine.world.SetDebugDraw(self.debugDraw);
-			// }
+				gPhysicsEngine.world.SetDebugDraw(self.debugDraw);
+			}
 			//console.log(gPhysicsEngine.world);
 			
 			jQuery('#starter').html('3');
@@ -271,7 +281,7 @@ var RaceScreen = Screen.extend({
 			setTimeout(function() { jQuery('#starter').html(''); jQuery('#starter').hide(); }, 4000);
 
 			setTimeout(function() { 
-				gPhysicsEngine.destroyStarter(); 
+				gPhysicsEngine.destroyStarters(); 
 				gBikeGame.screens['race'].startTime = new Date().getTime(); 
 				jQuery('#start-time').html(gBikeGame.screens['race'].startTime);
 				gRenderEngine.drawGateUp = false;
