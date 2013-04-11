@@ -27,10 +27,12 @@ var manifest = [
 { type: 'img', src: 'assets/img/finish.png', name: 'finish'},
 { type: 'img', src: 'assets/img/gate-up.png', name: 'gate-up'},
 { type: 'img', src: 'assets/img/gate-down.png', name: 'gate-down'},
+{ type: 'json', src: 'assets/records/track1-record1.json', name: 't1r1'},
+{ type: 'json', src: 'assets/records/track1-record2.json', name: 't1r2'},
 // { type: 'audio', src: 'assets/audio/intro.mp3', name: 'intro-music'},
 // { type: 'audio', src: 'assets/audio/track.mp3', name: 'track-music'},
-{ type: 'audio', src: 'assets/audio/motor2.wav', name: 'drive'},
-{ type: 'audio', src: 'assets/audio/motor3.wav', name: 'overdrive'}
+// { type: 'audio', src: 'assets/audio/motor2.wav', name: 'drive'},
+// { type: 'audio', src: 'assets/audio/motor3.wav', name: 'overdrive'}
 ];
 
 jQuery(document).ready(function() {

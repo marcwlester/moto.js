@@ -35,6 +35,25 @@ var AssetLoader = Class.extend({
 			if (type == 'audio') {
 				gSM.loadAsync(src, gAssetLoader.audioOnload);
 			}
+
+			if (type == 'json') {
+				var request = new XMLHttpRequest();
+				request.open('GET', src, true);
+				request.onload = function() {
+					var j = JSON.parse(this.response);
+					var n = 't' + j.track + 'r' + j.name;
+					gAssetLoader.assets[n] = j;
+					gAssetLoader.jsonOnload();
+				};
+				request.send();
+
+				// xhrGet(src, function() {
+				// 	var data = this.response;
+				// 	var tdata = JSON.parse(data);
+				// 	gAssetLoader.assets[name] = tdata;
+				// 	gAssetLoader.jsonOnload();
+				// });
+			}
 		}
 	},
 
@@ -48,6 +67,15 @@ var AssetLoader = Class.extend({
 	},
 
 	audioOnload: function(s) {
+		gAssetLoader.loadedAssets += 1;
+		gAssetLoader.onAssetLoaded();
+
+		if (gAssetLoader.loadedAssets == gAssetLoader.numAssets) {
+			gAssetLoader.onComplete();
+		}
+	},
+
+	jsonOnload: function() {
 		gAssetLoader.loadedAssets += 1;
 		gAssetLoader.onAssetLoaded();
 

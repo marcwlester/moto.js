@@ -45,6 +45,20 @@ var RaceScreen = Screen.extend({
 	menuOpen: false,
 	menuCooldown: 0,
 
+	playerHistory: [],
+	recordableActions: ['lean-back','lean-forward','drive','over-drive'],
+	historyTick: 0,
+	cpuAi: {
+		1: [],
+		2: [],
+		3: [],
+		4: []
+	},
+	cpuTorqueValue: {
+		2: 0,
+		3: 0,
+		4: 0,
+	},
 
 
 	init: function(id) {
@@ -81,6 +95,9 @@ var RaceScreen = Screen.extend({
 		var inAir = gPhysicsEngine.bodies[1].bike.rwheel.GetFixtureList().GetUserData().inAir;
 		var moving = false;
 		gPhysicsEngine.bodies[1].bike.rjoint.SetMotorSpeed(0);
+		gPhysicsEngine.bodies[2].bike.rjoint.SetMotorSpeed(0);
+		gPhysicsEngine.bodies[3].bike.rjoint.SetMotorSpeed(0);
+		gPhysicsEngine.bodies[4].bike.rjoint.SetMotorSpeed(0);
 		if (gInputEngine.action('drive')) {
 			// if (!this.motorSoundOn) {
 			// 	gSM.playPlayerSound('assets/audio/motor2.wav', {looping: true, volumn: 0.5});
@@ -151,13 +168,39 @@ var RaceScreen = Screen.extend({
 		
 		gPhysicsEngine.bodies[1].bike.rjoint.SetMaxMotorTorque(this.torqueValue);
 
-		gPhysicsEngine.bodies[2].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
-		gPhysicsEngine.bodies[2].bike.rjoint.SetMaxMotorTorque(this.torqueValue);
-		gPhysicsEngine.bodies[3].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
-		gPhysicsEngine.bodies[3].bike.rjoint.SetMaxMotorTorque(this.torqueValue);
-		gPhysicsEngine.bodies[4].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
-		gPhysicsEngine.bodies[4].bike.rjoint.SetMaxMotorTorque(this.torqueValue);
+		for (var cpu = 2; cpu <= 4; cpu++) {
+			var tick = this.cpuAi[cpu][this.historyTick];
+			
+			if (tick & 1) { //lean-back
+				console.log('lean-back');
+				var angle_speed = 1;
+				gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,-10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
+				gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x - 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
+			} else if (tick & 2) { //lean-forward
+				console.log('lean-forward');
+				var angle_speed = 0.5;
+				gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
+			}
+			
+			if (tick & 4) { // drive
+				console.log('drive');
+				this.cpuTorqueValue[cpu] = Math.min(this.cpuTorqueValue[cpu] + this.torqueStep, this.minTorque);
+				gPhysicsEngine.bodies[cpu].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
+			} else if (tick & 8) { //overdrive
+				console.log('overdrive');
+				this.cpuTorqueValue[cpu] = Math.min(this.cpuTorqueValue[cpu] + this.torqueStep, this.maxTorque);
+				gPhysicsEngine.bodies[cpu].bike.rjoint.SetMotorSpeed(-this.MAX_OVERDRIVE);
+			}
 
+			gPhysicsEngine.bodies[cpu].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
+			gPhysicsEngine.bodies[cpu].bike.rjoint.SetMaxMotorTorque(this.cpuTorqueValue[cpu]);
+			
+			var cpuInAir = gPhysicsEngine.bodies[cpu].bike.rwheel.GetFixtureList().GetUserData().inAir;
+			if (cpuInAir) {
+
+			}
+		}
+		this.historyTick += 1;
 
 		this.clearScreen();
 
@@ -174,7 +217,13 @@ var RaceScreen = Screen.extend({
 			//jQuery('#debug').html(gPhysicsEngine.bodies.bike.base.GetPosition().x);
 		} else {
 			if (this.finishTime == 0) {
-				gPhysicsEngine.world.Step(1/60, 10, 10);		
+				gPhysicsEngine.world.Step(1/60, 10, 10);
+				var history = 0;
+				history += gInputEngine.action('lean-back') ? 1 : 0;
+				history += gInputEngine.action('lean-forward') ? 2 : 0;
+				history += gInputEngine.action('drive') ? 4 : 0;
+				history += gInputEngine.action('over-drive') ? 8 : 0;
+				this.playerHistory.push(history);		
 			}
 			
 		}
@@ -189,6 +238,9 @@ var RaceScreen = Screen.extend({
 		
 		
 		this.torqueValue = Math.max(this.torqueValue - (this.torqueStep/5), 100);
+		this.cpuTorqueValue[2] = Math.max(this.cpuTorqueValue[2] - (this.torqueStep/5), 100);
+		this.cpuTorqueValue[3] = Math.max(this.cpuTorqueValue[3] - (this.torqueStep/5), 100);
+		this.cpuTorqueValue[4] = Math.max(this.cpuTorqueValue[4] - (this.torqueStep/5), 100);
 
 		var head_injury = gPhysicsEngine.bodies[1].bike.base.GetFixtureList().GetUserData().headInjury;
 		if (head_injury) {
@@ -225,15 +277,27 @@ var RaceScreen = Screen.extend({
 
 	loadTrack: function(track, callback) {
 		var self = this;
+		
 		xhrGet('assets/tracks/' + track + '.json', function(revent) {
 			var data = this.response;
 			var tdata = JSON.parse(data);
+
 			gBikeGame.screens['race'].rotationCount = 0;
 			gBikeGame.screens['race'].rotationDirection = 0;
 			gBikeGame.screens['race'].lastRotation = 0;
 			gBikeGame.screens['race'].startRotation = null;
 			gBikeGame.screens['race'].finishTime = 0;
-			gBikeGame.screens['race'].boostCount = 0
+			gBikeGame.screens['race'].boostCount = 0;
+			gBikeGame.screens['race'].playerHistory = [];
+			gBikeGame.screens['race'].historyTick = 0;
+			gBikeGame.screens['race'].cpuAi[2] = gAssetLoader.assets['t1r1'].data;
+			gBikeGame.screens['race'].cpuAi[3] = gAssetLoader.assets['t1r2'].data;
+			gBikeGame.screens['race'].cpuAi[4] = gAssetLoader.assets['t1r1'].data;
+			gBikeGame.screens['race'].cpuTorqueValue = {
+				2: 0,
+				3: 0,
+				4: 0,
+			};
 			gRenderEngine.resetRenderer();
 			gPhysicsEngine.init();
 			gPhysicsEngine.clearBodies();
