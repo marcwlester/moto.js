@@ -171,36 +171,45 @@ var RaceScreen = Screen.extend({
 		for (var cpu = 2; cpu <= 4; cpu++) {
 			var tick = this.cpuAi[cpu][this.historyTick];
 			
-			if (tick & 1) { //lean-back
-				console.log('lean-back');
-				var angle_speed = 1;
-				gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,-10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
-				gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x - 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
-			} else if (tick & 2) { //lean-forward
-				console.log('lean-forward');
-				var angle_speed = 0.5;
-				gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
-			}
+			// if (tick & 1) { //lean-back
+			// 	console.log('lean-back');
+			// 	var angle_speed = 1;
+			// 	gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,-10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
+			// 	gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x - 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
+			// } else if (tick & 2) { //lean-forward
+			// 	console.log('lean-forward');
+			// 	var angle_speed = 0.5;
+			// 	gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
+			// }
 			
-			if (tick & 4) { // drive
-				console.log('drive');
-				this.cpuTorqueValue[cpu] = Math.min(this.cpuTorqueValue[cpu] + this.torqueStep, this.minTorque);
-				gPhysicsEngine.bodies[cpu].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
-			} else if (tick & 8) { //overdrive
-				console.log('overdrive');
-				this.cpuTorqueValue[cpu] = Math.min(this.cpuTorqueValue[cpu] + this.torqueStep, this.maxTorque);
-				gPhysicsEngine.bodies[cpu].bike.rjoint.SetMotorSpeed(-this.MAX_OVERDRIVE);
-			}
+			// if (tick & 4) { // drive
+			// 	console.log('drive');
+			// 	this.cpuTorqueValue[cpu] = Math.min(this.cpuTorqueValue[cpu] + this.torqueStep, this.minTorque);
+			// 	gPhysicsEngine.bodies[cpu].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
+			// } else if (tick & 8) { //overdrive
+			// 	console.log('overdrive');
+			// 	this.cpuTorqueValue[cpu] = Math.min(this.cpuTorqueValue[cpu] + this.torqueStep, this.maxTorque);
+			// 	gPhysicsEngine.bodies[cpu].bike.rjoint.SetMotorSpeed(-this.MAX_OVERDRIVE);
+			// }
 
 			gPhysicsEngine.bodies[cpu].bike.rjoint.SetMotorSpeed(-this.MAX_DRIVE);
-			gPhysicsEngine.bodies[cpu].bike.rjoint.SetMaxMotorTorque(this.cpuTorqueValue[cpu]);
+			gPhysicsEngine.bodies[cpu].bike.rjoint.SetMaxMotorTorque(this.minTorque);
 			
 			var cpuInAir = gPhysicsEngine.bodies[cpu].bike.rwheel.GetFixtureList().GetUserData().inAir;
 			if (cpuInAir) {
-
+				//console.log(gPhysicsEngine.bodies[cpu].bike.base.GetAngle());
+				if (gPhysicsEngine.bodies[cpu].bike.base.GetAngle() < -1) {
+					var angle_speed = 0.5;
+					gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
+				} else if (gPhysicsEngine.bodies[cpu].bike.base.GetAngle() > 1) {
+					var angle_speed = 1;
+					gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,-10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x + 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
+					gPhysicsEngine.bodies[cpu].bike.base.ApplyImpulse(new b2Vec2(0,10 * angle_speed), new b2Vec2(gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().x - 1.5, gPhysicsEngine.bodies[cpu].bike.base.GetWorldCenter().y));
+				}
 			}
 		}
 		this.historyTick += 1;
+		console.log(gPhysicsEngine.bodies[2].bike.base.GetAngle());
 
 		this.clearScreen();
 
