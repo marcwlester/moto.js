@@ -14,6 +14,7 @@ SoundManager = Class.extend({
 
 	//----------------------------
 	create: function () {
+		return;
 		try {
 			gSM._context = new webkitAudioContext();
 		} catch (e) {
@@ -131,6 +132,7 @@ SoundManager = Class.extend({
 	//               }
 	//----------------------------
 	playSound: function (path, settings) {
+		return;
 		// Check if the Sound Manager has been enabled,
 		// return false if not.
 		if (!gSM.enabled) return false;
