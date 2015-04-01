@@ -20,12 +20,12 @@ var IntroScreen = Screen.extend({
 
 	show: function() {
 		this.parent();
-		gSM.playSound('assets/audio/intro.mp3', {looping: true});
+		//gSM.playSound('assets/audio/intro.mp3', {looping: true});
 	},
 
 	hide: function() {
 		this.parent();
-		gSM.stopAll();
+		//gSM.stopAll();
 	},
 
 	render: function(dt) {

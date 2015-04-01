@@ -366,7 +366,7 @@ var RaceScreen = Screen.extend({
 
 	show: function() {
 		this.parent();
-		gSM.playSound('assets/audio/track.mp3', {looping: true, volume: 0.0});
+		//gSM.playSound('assets/audio/track.mp3', {looping: true, volume: 0.0});
 		this.menuOpen = false;
 		this.menuCooldown = 0;
 		jQuery('#race-menu').hide();
@@ -374,7 +374,7 @@ var RaceScreen = Screen.extend({
 
 	hide: function() {
 		this.parent();
-		gSM.stopAll();
+		//gSM.stopAll();
 	}
 });
 

@@ -68,7 +68,7 @@ var BikeGame = Class.extend({
 		this.setScreen(this.screens['intro']);
 	},
 	toggleSound: function() {
-		gSM.togglemute();
+		//gSM.togglemute();
 	},
 });
 

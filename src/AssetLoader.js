@@ -33,7 +33,7 @@ var AssetLoader = Class.extend({
 			}
 
 			if (type == 'audio') {
-				gSM.loadAsync(src, gAssetLoader.audioOnload);
+				//gSM.loadAsync(src, gAssetLoader.audioOnload);
 			}
 
 			if (type == 'json') {

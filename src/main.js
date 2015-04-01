@@ -39,7 +39,7 @@ jQuery(document).ready(function() {
 	jQuery('#screen-load').show();
 	jQuery('#assets-loaded').html("0");
 	jQuery('#assets-total').html(manifest.length);
-	gSM.create();
+	//gSM.create();
 	gAssetLoader.loadManifest(manifest, function() { 
 		jQuery('#screen-load').hide();
 		gBikeGame.run();
